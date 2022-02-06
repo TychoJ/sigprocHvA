@@ -3,6 +3,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <string.h>
+#include <math.h>
 
 
 #include "clock.h"
@@ -48,6 +49,7 @@
 #define a11		(double) 2 * wcs1 * wcs1 - 8 * Td12
 #define a12		(double) 4 * Td12 - as1 * wcs1 * 2 * Td1 + wcs1*wcs1
 #define a20		(double) 2 * Td1 + wcs2
+#define a20d1	1 / a20
 #define a21		(double) wcs2 - 2 * Td1
 
 #define b10		(double) 4 * Td12
@@ -61,7 +63,13 @@ float b2[] = {b20, b21};
 
 float a1[] = {a10, a11, a12};
 float a2[] = {a20, a21};
+	
+volatile double y[2] = {0, 0};
 
+
+inline int8_t keepIn3(int8_t value) {
+	return value + 3 * (value < 0);
+}
 
 void init_timer(void){
 	TCE0.CTRLB     = TC_WGMODE_NORMAL_gc;	// Normal mode
@@ -103,57 +111,60 @@ void init_dac(void){
 // 	if (voltage < 0) voltage = 0;
 //}
 
-volatile float y[2] = {0,0};
-volatile int8_t yIndex = 0;
 
 ISR(ADCA_CH0_vect){
 	PORTC.OUTTGL = PIN0_bm;	//Toggle the LED
-	uint32_t BinaryValue; 	// contains value to write to DAC
 	
 	
 	//	<Jochem code>
 	
-	static float x0[3] = {0,0,0};
-	static float x1[3] = {0,0,0};
-	static float x2[2] = {0,0};
-	static float y[2] = {0, 0};
+	static double x0[3] = {0,0,0};
+	static double x1[3] = {0,0,0};
+	static double x2[2] = {1,1};
 		
 	static int8_t xIndex = 0;
-// 	static int8_t yIndex = 0; //Wordt ook gebruikt voor x2.
+	static int8_t yIndex = 0; //Wordt ook gebruikt voor x2.
 	
-	x0[xIndex] = (float)ADCA.CH0.RES;
+	x0[xIndex] = (double)ADCA.CH0.RES;
 	x1[xIndex] = 0;
 	
 	// Eerste deel
-	for(uint8_t i = 1; i < 3; i++) {
-		x1[xIndex] += b1[2 - i] * x0[(xIndex - i) % 3];
+	for(uint8_t i = 1; i < 3; i++) { 
+		x1[xIndex] += b1[2 - i] * x0[keepIn3(xIndex - i)];
 		// Het meest recente monster moet vermenigvuldigt worden met b12, daarna b11, dan b10
 	}
 	
 	for (uint8_t i = 1; i < 3; i++) {
-		x1[xIndex] += -a1[i] * x1[(xIndex - i) % 3];
+		x1[xIndex] += -a1[i] * x1[keepIn3(xIndex - i)];
 	}
+	
 	x1[xIndex] /= a10;
+	
 	
 	// Tweede deel
 	// Dit kan modulairder maar dan wordt het minder snel.
 	// Modulairder is een mooi woord.
 	
 	x2[yIndex] = b21 * x1[xIndex] + b20 * x2[!xIndex];
-	y[yIndex]  = (x2[yIndex] + -a21 * y[!yIndex]) / a20;
+	y[yIndex]  = (x2[yIndex] - a21 * y[yIndex]) * a20d1;// + -a21 * y[!yIndex]); //* a20d1;
 
-	int16_t out = (int16_t)y[yIndex];
+	int16_t out = (int16_t) (isinf(x2[yIndex])) * 1000 * ADC2DAC;
 
+
+	// NaN catcher
+// 	if(y[0] != y[0]) y[0] = 0;
+// 	if(y[1] != y[1]) y[1] = 0;
+	
 	xIndex = (xIndex + 1) % 3;
 	yIndex = !yIndex; 
 	// Hij moet gewoon wisselen tussen 1 en 0 dus dan is dit sneller
 	
 	//	</Jochem code>
 	
-	BinaryValue = out * ADC2DAC; //Bitwaarde
 // 	printOut = ADC2DAC;
-	DACB.CH0DATA = BinaryValue;			//write &USBDataIn to DAC (PIN A10)
+	DACB.CH0DATA = out;			//write &USBDataIn to DAC (PIN A10)
 	while (!DACB.STATUS & DAC_CH0DRE_bm);
+	
 }
 
 
@@ -166,12 +177,18 @@ int main(void){
 	init_timer();			// init timer
 	init_dac();				// init DAC
 	init_adc();				// init ADC
-	init_stream(F_CPU);
+// 	init_stream(F_CPU);
 		
 	PMIC.CTRL     |= PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm;		// set low and medium level interrupts
 	sei();					//Enable interrupts
-	printf("\n\nStart met poezen aaien\n");
-	printf("%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n", T, Td12, a10, a11, a12, a20, a21, b10, b11, b12, b20, b21);
+// 	printf("\n\nStart met poezen aaien\n");
+// 	printf("%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n", T, Td12, a10, a11, a12, a20, a21, b10, b11, b12, b20, b21);
+	
+	PORTF.OUTSET = PIN1_bm;
+	_delay_ms(1000);
+	PORTF.OUTCLR = PIN1_bm;
+	y[0] = 0;
+	y[1] = 1;
 	
 	while (1) {
 		asm volatile ("nop");
