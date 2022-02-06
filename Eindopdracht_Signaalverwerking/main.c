@@ -3,7 +3,10 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <string.h>
+
+
 #include "clock.h"
+#include "serialF0.h"
 
 // Dit programma leest d.m.v de ADC de spanning op PIN A2.
 // Dit is de input van je digitale filter. Dit filter moet je zelf bouwen.
@@ -28,28 +31,30 @@
 
 #define FIR_LAYERS 19
 
-#define Fc		70
-#define F0s1	1.0688
-#define F0s2	0.6265
-#define as1		0.5861
+#define Fc		(double) 70
+#define F0s1	(double) 1.0688
+#define F0s2	(double) 0.6265
+#define as1		(double) 0.5861
 
-#define T		1e-3
-#define T2		T * T
+#define T		(double) 0.001
+#define T2		(double) T * T
+#define Td1		(double) 1 / T
+#define Td12	(double) 1 / (T * T)
+ 
+#define wcs1	(double) 2 * Fc * M_PI / F0s1
+#define wcs2	(double) 2 * Fc * M_PI / F0s2
 
-#define wcs1	2 * Fc * M_PI / F0s1
-#define wcs2	2 * Fc * M_PI / F0s2
+#define a10		(double) 4 * Td12 + as1 * wcs1 * 2 * Td1 + wcs1*wcs1
+#define a11		(double) 2 * wcs1 * wcs1 - 8 * Td12
+#define a12		(double) 4 * Td12 - as1 * wcs1 * 2 * Td1 + wcs1*wcs1
+#define a20		(double) 2 * Td1 + wcs2
+#define a21		(double) wcs2 - 2 * Td1
 
-#define a10		4 / T2 + as1 * wcs1 * 2 / T + wcs1*wcs1
-#define a11		2 * wcs1 * wcs1 - 8 / T2
-#define a12		4 / T2 - as1 * wcs1 * 2 / T + wcs1*wcs1
-#define a20		2 / T + wcs2
-#define a21		wcs2 - 2 / T
-
-#define b10		4 / T2
-#define b11		-8 / T2
-#define b12		4 / T2
-#define b20		-2 / T
-#define b21		2 / T
+#define b10		(double) 4 * Td12
+#define b11		(double) -8 * Td12
+#define b12		(double) 4 * Td12
+#define b20		(double) -2 * Td1
+#define b21		(double) 2 * Td1
 
 float b1[] = {b10, b11, b12};
 float b2[] = {b20, b21};
@@ -98,6 +103,9 @@ void init_dac(void){
 // 	if (voltage < 0) voltage = 0;
 //}
 
+volatile float y[2] = {0,0};
+volatile int8_t yIndex = 0;
+
 ISR(ADCA_CH0_vect){
 	PORTC.OUTTGL = PIN0_bm;	//Toggle the LED
 	uint32_t BinaryValue; 	// contains value to write to DAC
@@ -105,13 +113,13 @@ ISR(ADCA_CH0_vect){
 	
 	//	<Jochem code>
 	
-	static float x0[3] = {0};
-	static float x1[3] = {0};
-	static float x2[2] = {0};
-	static float y[2] = {0};
+	static float x0[3] = {0,0,0};
+	static float x1[3] = {0,0,0};
+	static float x2[2] = {0,0};
+	static float y[2] = {0, 0};
 		
-	static uint8_t xIndex = 0;
-	static uint8_t yIndex = 0; //Wordt ook gebruikt voor x2.
+	static int8_t xIndex = 0;
+// 	static int8_t yIndex = 0; //Wordt ook gebruikt voor x2.
 	
 	x0[xIndex] = (float)ADCA.CH0.RES;
 	x1[xIndex] = 0;
@@ -134,7 +142,7 @@ ISR(ADCA_CH0_vect){
 	x2[yIndex] = b21 * x1[xIndex] + b20 * x2[!xIndex];
 	y[yIndex]  = (x2[yIndex] + -a21 * y[!yIndex]) / a20;
 
-	int16_t out = (int16_t) y[yIndex];
+	int16_t out = (int16_t)y[yIndex];
 
 	xIndex = (xIndex + 1) % 3;
 	yIndex = !yIndex; 
@@ -158,11 +166,14 @@ int main(void){
 	init_timer();			// init timer
 	init_dac();				// init DAC
 	init_adc();				// init ADC
+	init_stream(F_CPU);
 		
 	PMIC.CTRL     |= PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm;		// set low and medium level interrupts
 	sei();					//Enable interrupts
+	printf("\n\nStart met poezen aaien\n");
+	printf("%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n", T, Td12, a10, a11, a12, a20, a21, b10, b11, b12, b20, b21);
 	
 	while (1) {
-		asm volatile("nop");
+		asm volatile ("nop");
 	}
 }
