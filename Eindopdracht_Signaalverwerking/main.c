@@ -64,8 +64,6 @@ float b2[] = {b20, b21};
 float a1[] = {a10, a11, a12};
 float a2[] = {a20, a21};
 	
-volatile double y[2] = {0, 0};
-
 
 inline int8_t keepIn3(int8_t value) {
 	return value + 3 * (value < 0);
@@ -112,18 +110,19 @@ void init_dac(void){
 //}
 
 
+volatile double x0[3] = {0,0,0};
+volatile double x1[3] = {0,0,0};
+volatile double x2[2] = {1,1};
+volatile double y[2] = {1,1};
+
+volatile int8_t xIndex = 0;
+volatile int8_t yIndex = 0; //Wordt ook gebruikt voor x2.
+
 ISR(ADCA_CH0_vect){
 	PORTC.OUTTGL = PIN0_bm;	//Toggle the LED
 	
 	
 	//	<Jochem code>
-	
-	static double x0[3] = {0,0,0};
-	static double x1[3] = {0,0,0};
-	static double x2[2] = {1,1};
-		
-	static int8_t xIndex = 0;
-	static int8_t yIndex = 0; //Wordt ook gebruikt voor x2.
 	
 	x0[xIndex] = (double)ADCA.CH0.RES;
 	x1[xIndex] = 0;
@@ -148,7 +147,7 @@ ISR(ADCA_CH0_vect){
 	x2[yIndex] = b21 * x1[xIndex] + b20 * x2[!xIndex];
 	y[yIndex]  = (x2[yIndex] - a21 * y[yIndex]) * a20d1;// + -a21 * y[!yIndex]); //* a20d1;
 
-	int16_t out = (int16_t) (isinf(x2[yIndex])) * 1000 * ADC2DAC;
+	int16_t out = (int16_t) (isnan(y[0])) * 1000 * ADC2DAC;
 
 
 	// NaN catcher
@@ -187,8 +186,6 @@ int main(void){
 	PORTF.OUTSET = PIN1_bm;
 	_delay_ms(1000);
 	PORTF.OUTCLR = PIN1_bm;
-	y[0] = 0;
-	y[1] = 1;
 	
 	while (1) {
 		asm volatile ("nop");
