@@ -134,7 +134,7 @@ ISR(ADCA_CH0_vect){
 	x2[yIndex] = b21 * x1[xIndex] + b20 * x2[!xIndex];
 	y[yIndex]  = (x2[yIndex] + -a21 * y[!yIndex]) / a20;
 
-	int16_t out = ADCA.CH0.RES;//(int16_t) y[yIndex];
+	int16_t out = (int16_t) y[yIndex];
 
 	xIndex = (xIndex + 1) % 3;
 	yIndex = !yIndex; 
