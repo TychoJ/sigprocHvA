@@ -3,6 +3,9 @@
 \begin{minipage}{0.45\textwidth}
 	Maak een derde orde 0.5dB ripple chebyshev lowpass filter met een $F_C$ van 70Hz. In de doorlaat band 
 	moet er met 10dB worden versterkt. Uit de tabel zijn de volgende gegevens te halen.
+
+	\noindent
+	Daarnaast moet het filter met de Sallen-key topologie worden gerealiseerd.
 \end{minipage}
 \hfill
 \begin{minipage}{0.45\textwidth}
@@ -101,11 +104,101 @@ $R_3=5787\Omega$ dit moet worden afgerond op $5.6k\Omega$ omdat er geen weerstan
 	\end{minipage}
 	\begin{minipage}{0.37\textwidth}
 		\begin{equation} \label{eq:rcValR}
-			R_3=\frac{1}{\omega_c*\omega_{0_2}C_3}
+			R_3=\frac{1}{\omega_c\omega_{0_2}C_3}
 		\end{equation}
 	\end{minipage}
 \end{flushright}
 \newpage
+
 \subsection{LTspice}
+Het filter dat in afbeelding \ref{fig:filterTotaal} is te zien is gesimuleerd in LTspice. De resultaten van de simulatie zijn te zien
+in afbeelding \ref{fig:simRes}.
+\begin{figure}[!htb]
+	\begin{minipage}{0.45\textwidth}
+		\includegraphics[width=0.9\textwidth]{simulation/schematic.png}
+		\caption{Eerste orde lp filter}
+		\label{fig:filterTotaal}
+	\end{minipage}
+	\begin{minipage}{0.45\textwidth}
+		\includegraphics[width=0.9\textwidth, height=100pt]{simulation/Draft2.png}
+		\caption{LTspice simulatie}
+		\label{fig:simRes}
+	\end{minipage}
+\end{figure}
+
+\subsection{PCB}
+	\begin{wrapfigure}[5]{r}{0.25\textwidth}
+		\includegraphics[width=\linewidth, angle=90]{pcb/total.png}
+		\caption{Layout}
+		\label{fig:pcb:layout}
+	\end{wrapfigure}
+	Voor deze opdracht hebben wij een pcb ontworpen, op afbeelding \ref{fig:pcb:layout} is de layout te zien. Wij hebben er voor gekozen om een pcb te makenom de 
+	parasitaire eigenschappen van onder anderen het breadboard tegen te gaan.
+
+	\noindent
+	Bij de layout zijn er nog wel een paar dingen die verbeterd zouden kunnen worden. Een voorbeeld is te zien in afbeelding \ref{fig:pcb:verbeter}
+	en in afbeelding \ref{fig:pcb:verbeterde} is te zien hoe dit valt te verbeteren. 
+	\begin{figure}[!htb]
+		\begin{subfigure}[b]{0.33\textwidth}
+			\includegraphics[width=0.5\textwidth, angle=270]{pcb/improvement.png}
+			\caption{Dit kan worden verbeterd}
+			\label{fig:pcb:verbeter}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.33\textwidth}
+			\includegraphics[width=0.5\textwidth, angle=270]{pcb/improved.png}
+			\caption{Verbeterd}
+			\label{fig:pcb:verbeterde}
+		\end{subfigure}
+		\caption{verbeter punt}
+	\end{figure}
+
+	\noindent
+	Op afbeeldingen \ref{fig:pcb:3dBottom} en \ref{fig:pcb:3dTop} is een 3D render te zien van het gemaakte pcb. Bij het ontwerpen van dit pcb is 
+	rekening gehouden met alle connectoren aan een kan van de print houden. Daarnaast zijn er nog een paar extra testpoints geplaatst om het debuggen
+	van de schakeling makkelijker te maken als deze niet zou werken.
+	\begin{figure}[!htb]
+		\centering
+		\begin{subfigure}[b]{0.45\textwidth}
+			\includegraphics[width=0.7\textwidth]{pcb/bottom.png}
+			\caption{onderkant}
+			\label{fig:pcb:3dBottom}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.45\textwidth}
+			\includegraphics[width=0.7\textwidth]{pcb/top.png}
+			\caption{bovenkant}
+			\label{fig:pcb:3dTop}
+		\end{subfigure}
+		\caption{3D renders}
+	\end{figure}
+	
+\newpage
+
 
 \subsection{Metingen}
+\textbf{DISCLAIMER:} Tijdens het berekenen van het filter waren er wat reken fouten gemaakt waardoor het uiteindelijke ontwerp 
+niet is opgebouwd met de correcte component waardes zoals ze in dit verslag staan. Het pcb is opgebouwd met de volgende waardes voor de componenten
+
+\noindent
+$R_1=R_2=10k\Omega$, $C_1=7.7uF$, $C_2=390nF$, $R_3=230\Omega$, $R_4=4.3k\Omega$ en $R_5=10k\Omega$
+\\ 
+
+\noindent
+Bij alle metingen is er $\pm 10V$ geleverd ten opzichte van GND. Bij een ingangssignaal van 10Hz $1V_{PP}$ is op afbeelding \ref{fig:amp} te zien wat de output is.
+Met een ingangssignaal van 70Hz $1V_{PP}$ is op afbeelding \ref{fig:atten} te zien wat de output is
+\begin{figure}[!hbt]
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=\textwidth]{measurements/versterking.jpg}
+		\caption{Versterking}
+		\label{fig:amp}
+	\end{subfigure}
+	\begin{subfigure}{0.5\textwidth}
+		\includegraphics[width=\textwidth]{measurements/demping.jpg}
+		\caption{Demping}
+		\label{fig:atten}
+	\end{subfigure}
+	\caption{Meetingen met een oscilloscope}
+\end{figure}
+
+\noindent
+Het is te zien dat in de doorlaat band het filter met ongeveer 10dB versterkt en in de stopband het signaal dempt. Waar exact het -3dB punt ligt is 
+lichtelijk verschoven naar een lagere frequentie. Dit komt zoals in de disclaimer van dit stuk al staat er met verkeerde component waardes is gemeten.
