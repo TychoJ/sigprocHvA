@@ -31,21 +31,13 @@
 \end{minipage}
 \hfill
 \begin{minipage}{0.60\textwidth}
-	\begin{equation} \label{eq:hs}
-		H(s)=\frac{(\omega_{0_1}\cdot\omega_c)^2\cdot\omega_c\cdot\omega_{0_2}}{(s^2+ \alpha \cdot \omega_{0_1} \cdot \omega_c \cdot s + (\omega_{0_1}\cdot\omega_c)^2)\cdot (s + \omega_c \cdot \omega_{0_2})}
-	\end{equation}
-	\begin{equation} \label{eq:hsNum}
-		H(s)=\frac{220\, 156.6429\,\cdot\, 275.0335}{(s^2+274.9999\cdot s+220\, 156.6429)(s+275.0335)}
-	\end{equation}
-	\begin{equation} \label{eq:hsSplit}
-		H(s)= H(s)_1 \cdot H(s)_2
-	\end{equation}
-	\begin{equation} \label{eq:hs1}
-		H(s)_1=\frac{(\omega_{0_1}\cdot\omega_c)^2}{s^2+ \alpha \cdot \omega_{0_1} \cdot \omega_c \cdot s + (\omega_{0_1}\cdot\omega_c)^2}
-	\end{equation}
-	\begin{equation} \label{eq:hs2}
-		H(s)_2=\frac{\omega_c\cdot\omega_{0_2}}{s + \omega_c \cdot \omega_{0_2}}
-	\end{equation}
+	\begin{align}
+		H(s)&=\frac{(\omega_{0_1}\cdot\omega_c)^2\cdot\omega_c\cdot\omega_{0_2}}{(s^2+ \alpha \cdot \omega_{0_1} \cdot \omega_c \cdot s + (\omega_{0_1}\cdot\omega_c)^2)\cdot (s + \omega_c \cdot \omega_{0_2})} \label{eq:hs} \\
+		H(s)&=\frac{220\, 156.6429\,\cdot\, 275.0335}{(s^2+274.9999\cdot s+220\, 156.6429)(s+275.0335)} \label{eq:hsNum}\\
+		H(s)&= H(s)_1 \cdot H(s)_2 \label{eq:hsSplit} \\ 
+		H(s)&_1=\frac{(\omega_{0_1}\cdot\omega_c)^2}{s^2+ \alpha \cdot \omega_{0_1} \cdot \omega_c \cdot s + (\omega_{0_1}\cdot\omega_c)^2} \label{eq:hs1} \\ 
+		H(s)&_2=\frac{\omega_c\cdot\omega_{0_2}}{s + \omega_c \cdot \omega_{0_2}} \label{eq:hs2} \\ 
+	\end{align}
 \end{minipage}
  
 %$H(s)_1=\frac{220\, 156.6429}{s^2+274.9999s+220\, 156.6429}$
@@ -55,16 +47,19 @@
 \begin{wrapfigure}{l}{0.25 \textwidth}
 	\includegraphics[width=0.9\linewidth]{schematic/sallenkay.png}
 	\caption{Sallen-key}
+	\label{fig:sallenKey}
 \end{wrapfigure}
-Het tweede orde deel van het derde orde filter wordt via de Sallen-key topologie gerealiseerd.
+
 \vphantom{-}\\
+\begin{minipage}{0.37\textwidth}
+	Het tweede orde deel van het derde orde filter wordt via de Sallen-key topologie gerealiseerd. In afbeelding \ref{fig:sallenKey} is te zien 
+	hoe een laag doorlaat sallen-key filter er uit ziet.
+\end{minipage}
+\hfill
 \begin{minipage}{0.37\textwidth}
 	\begin{equation} \label{eq:c1}
 		C_1=\frac{2Q}{\omega_c\omega_{0_1}R}
 	\end{equation}
-\end{minipage}
-\hfill
-\begin{minipage}{0.37\textwidth}
 	\begin{equation} \label{eq:c2}
 		C_2=\frac{1}{2Q\omega_c\omega_{0_1}R}
 	\end{equation}
@@ -80,8 +75,8 @@ Voor dit filter is gekozen om voor R $10k\Omega$ te kiezen. Waardoor $C_1=727nF$
 kan er wel een condensator worden gekocht met de juiste waarde. 
 
 \noindent
-Door $C_2$ met formule \ref{eq:c2} uit te rekenen komt $C_2$ uit op een waarde van 62nF en deze is wel direct 
-in deze waarde te koop. 
+Door $C_2$ met formule \ref{eq:c2} uit te rekenen komt $C_2$ uit op een waarde van 62nF, deze waarde is wel direct 
+te koop. 
 
 \noindent
 Beide waardes zitten alleen niet in de E6/12 reeks en zijn dus aanzienlijk duurder, 
