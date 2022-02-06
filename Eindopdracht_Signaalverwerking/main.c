@@ -5,9 +5,7 @@
 #include <string.h>
 #include <math.h>
 
-
 #include "clock.h"
-#include "serialF0.h"
 
 // Dit programma leest d.m.v de ADC de spanning op PIN A2.
 // Dit is de input van je digitale filter. Dit filter moet je zelf bouwen.
@@ -110,16 +108,16 @@ void init_dac(void){
 //}
 
 
-volatile double x0[3] = {0,0,0};
-volatile double x1[3] = {0,0,0};
-volatile double x2[2] = {1,1};
-volatile double y[2] = {1,1};
-
-volatile int8_t xIndex = 0;
-volatile int8_t yIndex = 0; //Wordt ook gebruikt voor x2.
-
 ISR(ADCA_CH0_vect){
 	PORTC.OUTTGL = PIN0_bm;	//Toggle the LED
+	
+	static double x0[3] = {0,0,0};
+	static double x1[3] = {0,0,0};
+	static double x2[2] = {1,1};
+	static double y[2] = {1,1};
+
+	static int8_t xIndex = 0;
+	static int8_t yIndex = 0; //Wordt ook gebruikt voor x2.
 	
 	
 	//	<Jochem code>
@@ -147,7 +145,7 @@ ISR(ADCA_CH0_vect){
 	x2[yIndex] = b21 * x1[xIndex] + b20 * x2[!xIndex];
 	y[yIndex]  = (x2[yIndex] - a21 * y[yIndex]) * a20d1;// + -a21 * y[!yIndex]); //* a20d1;
 
-	int16_t out = (int16_t) (isnan(y[0])) * 1000 * ADC2DAC;
+	int16_t out = (int16_t)(y[yIndex]) * ADC2DAC;
 
 
 	// NaN catcher
