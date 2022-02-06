@@ -44,7 +44,7 @@
 %$H(s)_2=\frac{275.0335}{s+275.0335}$
 
 \subsection{Tweede orde/Sallen-key}
-\begin{wrapfigure}{l}{0.25 \textwidth}
+\begin{wrapfigure}[6]{l}{0.25 \textwidth}
 	\includegraphics[width=0.9\linewidth]{schematic/sallenkay.png}
 	\caption{Sallen-key}
 	\label{fig:sallenKey}
@@ -83,7 +83,29 @@ Beide waardes zitten alleen niet in de E6/12 reeks en zijn dus aanzienlijk duurd
 hier gaat een afweging meespelen tussen de prijs van componenten en de kwaliteit van het filter.
 
 \subsection{Eerste orde}
+\begin{wrapfigure}[5]{l}{0.25\textwidth}
+	\includegraphics[width=0.9\linewidth]{schematic/rc.png}
+	\caption{Eerste orde lp filter}
+	\label{fig:lp}
+\end{wrapfigure}
+\vphantom{-}\\
+Een passief eerste orde laag doorlaat filter staat in figuur \ref{fig:lp}. Met formule \ref{eq:rc} is het mogelijk om de verschillende component waardes uit te rekenen 
+voor het filter. Wij hebben $C_3=100nF$ gekozen waaruit formule \ref{eq:rcValR} volgt dat 
+$R_3=5787\Omega$ dit moet worden afgerond op $5.6k\Omega$ omdat er geen weerstanden beschikbaar zijn met een waarde van $5787\Omega$.
 
+\begin{flushright}
+	\begin{minipage}{0.37\textwidth}
+		\begin{equation} \label{eq:rc}
+			\omega_c*\omega_{0_2}=\frac{1}{R_3C_3}
+		\end{equation}
+	\end{minipage}
+	\begin{minipage}{0.37\textwidth}
+		\begin{equation} \label{eq:rcValR}
+			R_3=\frac{1}{\omega_c*\omega_{0_2}C_3}
+		\end{equation}
+	\end{minipage}
+\end{flushright}
+\newpage
 \subsection{LTspice}
 
 \subsection{Metingen}
