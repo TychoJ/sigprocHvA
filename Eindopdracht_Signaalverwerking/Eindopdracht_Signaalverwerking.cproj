@@ -20,10 +20,10 @@
     <OverrideVtor>false</OverrideVtor>
     <CacheFlash>true</CacheFlash>
     <ProgFlashFromRam>true</ProgFlashFromRam>
-    <RamSnippetAddress />
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
     <UncachedRange />
     <preserveEEPROM>true</preserveEEPROM>
-    <OverrideVtorValue />
+    <OverrideVtorValue>exception_table</OverrideVtorValue>
     <BootSegment>2</BootSegment>
     <ResetRule>0</ResetRule>
     <eraseonlaunchrule>0</eraseonlaunchrule>
@@ -40,6 +40,20 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
+    <avrtool>com.atmel.avrdbg.tool.ispmk2</avrtool>
+    <avrtoolinterface>PDI</avrtoolinterface>
+    <avrtoolserialnumber>000200212345</avrtoolserialnumber>
+    <avrdeviceexpectedsignature>0x1E9842</avrdeviceexpectedsignature>
+    <com_atmel_avrdbg_tool_ispmk2>
+      <ToolOptions>
+        <InterfaceProperties>
+        </InterfaceProperties>
+        <InterfaceName>PDI</InterfaceName>
+      </ToolOptions>
+      <ToolType>com.atmel.avrdbg.tool.ispmk2</ToolType>
+      <ToolNumber>000200212345</ToolNumber>
+      <ToolName>AVRISP mkII</ToolName>
+    </com_atmel_avrdbg_tool_ispmk2>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -120,36 +134,15 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="digital_filter_main_empty.c">
+    <Compile Include="clock.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="drivers\avr_compiler.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="drivers\stream.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="drivers\stream.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="drivers\uart.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="drivers\uart.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="drivers\usart_driver.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="drivers\usart_driver.h">
+    <Compile Include="clock.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="drivers\" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>
