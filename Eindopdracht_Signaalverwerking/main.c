@@ -5,11 +5,6 @@
 #include <string.h>
 #include "clock.h"
 
-// De code is gemaakt door Eric Hoekstra voor de vakken Regeltechniek en Signaalverwerking.
-// De code is gebaseerd op het boek van Dhr W. Dolman, waarvoor dank.
-// Zie http://dolman-wim.nl/xmega/index.php voor de voorbeelden
-// De Code is bestemd voor de ATxmega256a3u
-
 // Dit programma leest d.m.v de ADC de spanning op PIN A2.
 // Dit is de input van je digitale filter. Dit filter moet je zelf bouwen.
 // De output van je digitale filter wordt d.m.v. de DAC op PIN A10 gezet.
@@ -22,7 +17,7 @@
 #define VREF		(float) VCC / 1.6
 
 #define N		8UL
-#define F_CLK	300UL
+#define F_CLK	1000UL
 #define TC_PER	(F_CPU / ((N * F_CLK)) - 1)
 
 //DAC
@@ -109,12 +104,6 @@ ISR(ADCA_CH0_vect){
 	
 	
 	//	<Jochem code>
-	
-	//x[] = {>0, 0, 0}; > = xIndex
-	//x[] = { a,>0, 0};
-	//x[] = { b, a,>0};
-	//x[] = {>c, b, a};
-	//x[] = { a,>c, b};
 	
 	static float x0[3] = {0};
 	static float x1[3] = {0};
