@@ -124,7 +124,8 @@ ISR(ADCA_CH0_vect){
 	y0[xIndex] = a10d1 * (w - a11 * y0[keepIn3(xIndex - 1)] - a12 * y0[keepIn3(xIndex - 2)]);
 	
 	
-	DACB.CH0DATA = y0[xIndex];			//write &USBDataIn to DAC (PIN A10)
+	DACB.CH0DATA = y0[xIndex] * ADC2DAC;			//write &USBDataIn to DAC (PIN A10)
+	DACB.CH0DATA = isnan(y0[xIndex]) * 1000 * ADC2DAC;			//write &USBDataIn to DAC (PIN A10)
 	while (!DACB.STATUS & DAC_CH0DRE_bm);
 	
 	xIndex = (xIndex + 1) % 3;
