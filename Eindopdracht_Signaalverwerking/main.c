@@ -121,7 +121,7 @@ ISR(ADCA_CH0_vect){
 	//	<Jochem code>
 	
 	w = b10 * x[xIndex] + b11 * x[keepIn3(xIndex - 1)] + b12 * x[keepIn3(xIndex - 2)];
-	y0[xIndex] = a10d1 * (w - a11 * y0[keepIn3(xIndex - 1)] - a12 * y0[keepIn3(xIndex - 2)])
+	y0[xIndex] = a10d1 * (w - a11 * y0[keepIn3(xIndex - 1)] - a12 * y0[keepIn3(xIndex - 2)]);
 	
 	
 	DACB.CH0DATA = y0[xIndex];			//write &USBDataIn to DAC (PIN A10)
