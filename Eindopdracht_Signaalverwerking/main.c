@@ -41,22 +41,22 @@
 #define Td1		(double) 1 / T
 #define Td12	(double) 1 / (T * T)
  
-#define wcs1	(double) 2 * Fc * M_PI / F0s1
-#define wcs2	(double) 2 * Fc * M_PI / F0s2
+#define wcs1	(double) 2 * Fc * M_PI / F0s1 / 1024
+#define wcs2	(double) 2 * Fc * M_PI / F0s2 / 1024
 
-#define a10		(double) 4 * Td12 + as1 * wcs1 * 2 * Td1 + wcs1*wcs1
+#define a10		(double) 4 * Td12 + as1 * wcs1 * 2 * Td1 + wcs1*wcs1 / 1024
 #define a10d1	(double) 1 / a10
-#define a11		(double) 2 * wcs1 * wcs1 - 8 * Td12
-#define a12		(double) 4 * Td12 - as1 * wcs1 * 2 * Td1 + wcs1*wcs1
-#define a20		(double) 2 * Td1 + wcs2
+#define a11		(double) 2 * wcs1 * wcs1 - 8 * Td12 / 1024
+#define a12		(double) 4 * Td12 - as1 * wcs1 * 2 * Td1 + wcs1*wcs1 / 1024
+#define a20		(double) 2 * Td1 + wcs2 / 1024
 #define a20d1	1 / a20
-#define a21		(double) wcs2 - 2 * Td1
+#define a21		(double) wcs2 - 2 * Td1 / 1024
 
-#define b10		(double) 4 * Td12
-#define b11		(double) -8 * Td12
-#define b12		(double) 4 * Td12
-#define b20		(double) -2 * Td1
-#define b21		(double) 2 * Td1
+#define b10		(double) 4 * Td12 / 1024
+#define b11		(double) -8 * Td12 / 1024
+#define b12		(double) 4 * Td12 / 1024
+#define b20		(double) -2 * Td1 / 1024
+#define b21		(double) 2 * Td1 / 1024
 
 float b1[] = {b10, b11, b12};
 float b2[] = {b20, b21};
@@ -125,7 +125,7 @@ ISR(ADCA_CH0_vect){
 	y0[xIndex] = a10d1 * (w - a11 * y0[keepIn3(xIndex - 1)] - a12 * y0[keepIn3(xIndex - 2)]);
 	
 	
-	DACB.CH0DATA = y0[xIndex] * ADC2DAC;			//write &USBDataIn to DAC (PIN A10)
+	DACB.CH0DATA = (int) y0[xIndex] * ADC2DAC;			//write &USBDataIn to DAC (PIN A10)
 // 	DACB.CH0DATA = isnan(y0[xIndex]) * 1000 * ADC2DAC;			//write &USBDataIn to DAC (PIN A10)
 	while (!DACB.STATUS & DAC_CH0DRE_bm);
 	
