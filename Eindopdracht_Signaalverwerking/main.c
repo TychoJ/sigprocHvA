@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "clock.h"
+#include "serialF0.h"
 
 // Dit programma leest d.m.v de ADC de spanning op PIN A2.
 // Dit is de input van je digitale filter. Dit filter moet je zelf bouwen.
@@ -112,9 +113,9 @@ void init_dac(void){
 ISR(ADCA_CH0_vect){
 	PORTC.OUTTGL = PIN0_bm;	//Toggle the LED
 	
-	static float x[3] = {0,0,0};
-	float w = 0;
-	static float y0[3] = {0,0,0};
+	static long double x[3] = {0,0,0};
+	long double w = 0;
+	static long double y0[3] = {0,0,0};
 		
 	static uint8_t xIndex = 0;
 		
@@ -125,7 +126,7 @@ ISR(ADCA_CH0_vect){
 	
 	
 	DACB.CH0DATA = y0[xIndex] * ADC2DAC;			//write &USBDataIn to DAC (PIN A10)
-	DACB.CH0DATA = isnan(y0[xIndex]) * 1000 * ADC2DAC;			//write &USBDataIn to DAC (PIN A10)
+// 	DACB.CH0DATA = isnan(y0[xIndex]) * 1000 * ADC2DAC;			//write &USBDataIn to DAC (PIN A10)
 	while (!DACB.STATUS & DAC_CH0DRE_bm);
 	
 	xIndex = (xIndex + 1) % 3;
@@ -141,12 +142,12 @@ int main(void){
 	init_timer();			// init timer
 	init_dac();				// init DAC
 	init_adc();				// init ADC
-// 	init_stream(F_CPU);
+	init_stream(F_CPU);
 		
 	PMIC.CTRL     |= PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm;		// set low and medium level interrupts
 	sei();					//Enable interrupts
-// 	printf("\n\nStart met poezen aaien\n");
-// 	printf("%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n", T, Td12, a10, a11, a12, a20, a21, b10, b11, b12, b20, b21);
+	printf("\n\nStart met poezen aaien\n");
+	printf("%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n%lf\t%lf\t%lf\n%lf\t%lf\n", T, Td12, a10, a11, a12, a20, a21, b10, b11, b12, b20, b21);
 	
 	PORTF.OUTSET = PIN1_bm;
 	_delay_ms(1000);
