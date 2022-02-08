@@ -44,6 +44,7 @@
 #define wcs2	(double) 2 * Fc * M_PI / F0s2
 
 #define a10		(double) 4 * Td12 + as1 * wcs1 * 2 * Td1 + wcs1*wcs1
+#define a10d1	(double) 1 / a10
 #define a11		(double) 2 * wcs1 * wcs1 - 8 * Td12
 #define a12		(double) 4 * Td12 - as1 * wcs1 * 2 * Td1 + wcs1*wcs1
 #define a20		(double) 2 * Td1 + wcs2
@@ -111,57 +112,22 @@ void init_dac(void){
 ISR(ADCA_CH0_vect){
 	PORTC.OUTTGL = PIN0_bm;	//Toggle the LED
 	
-	static double x0[3] = {0,0,0};
-	static double x1[3] = {0,0,0};
-	static double x2[2] = {1,1};
-	static double y[2] = {1,1};
-
-	static int8_t xIndex = 0;
-	static int8_t yIndex = 0; //Wordt ook gebruikt voor x2.
-	
-	
+	static double x[3] = {0,0,0};
+	double w = 0;
+	static double y0[3] = {0,0,0};
+		
+	static uint8_t xIndex = 0;
+		
 	//	<Jochem code>
 	
-	x0[xIndex] = (double)ADCA.CH0.RES;
-	x1[xIndex] = 0;
-	
-	// Eerste deel
-	for(uint8_t i = 1; i < 3; i++) { 
-		x1[xIndex] += b1[2 - i] * x0[keepIn3(xIndex - i)];
-		// Het meest recente monster moet vermenigvuldigt worden met b12, daarna b11, dan b10
-	}
-	
-	for (uint8_t i = 1; i < 3; i++) {
-		x1[xIndex] += -a1[i] * x1[keepIn3(xIndex - i)];
-	}
-	
-	x1[xIndex] /= a10;
+	w = b10 * x[xIndex] + b11 * x[keepIn3(xIndex - 1)] + b12 * x[keepIn3(xIndex - 2)];
+	y0[xIndex] = a10d1 * (w - a11 * y0[keepIn3(xIndex - 1)] - a12 * y0[keepIn3(xIndex - 2)])
 	
 	
-	// Tweede deel
-	// Dit kan modulairder maar dan wordt het minder snel.
-	// Modulairder is een mooi woord.
-	
-	x2[yIndex] = b21 * x1[xIndex] + b20 * x2[!xIndex];
-	y[yIndex]  = (x2[yIndex] - a21 * y[yIndex]) * a20d1;// + -a21 * y[!yIndex]); //* a20d1;
-
-	int16_t out = (int16_t)(y[yIndex]) * ADC2DAC;
-
-
-	// NaN catcher
-// 	if(y[0] != y[0]) y[0] = 0;
-// 	if(y[1] != y[1]) y[1] = 0;
-	
-	xIndex = (xIndex + 1) % 3;
-	yIndex = !yIndex; 
-	// Hij moet gewoon wisselen tussen 1 en 0 dus dan is dit sneller
-	
-	//	</Jochem code>
-	
-// 	printOut = ADC2DAC;
-	DACB.CH0DATA = out;			//write &USBDataIn to DAC (PIN A10)
+	DACB.CH0DATA = y0[xIndex];			//write &USBDataIn to DAC (PIN A10)
 	while (!DACB.STATUS & DAC_CH0DRE_bm);
 	
+	xIndex = (xIndex + 1) % 3;
 }
 
 
