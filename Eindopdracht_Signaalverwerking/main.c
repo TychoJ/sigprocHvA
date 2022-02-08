@@ -112,9 +112,9 @@ void init_dac(void){
 ISR(ADCA_CH0_vect){
 	PORTC.OUTTGL = PIN0_bm;	//Toggle the LED
 	
-	static double x[3] = {0,0,0};
-	double w = 0;
-	static double y0[3] = {0,0,0};
+	static float x[3] = {0,0,0};
+	float w = 0;
+	static float y0[3] = {0,0,0};
 		
 	static uint8_t xIndex = 0;
 		
